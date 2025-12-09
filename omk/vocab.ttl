@@ -1,0 +1,27 @@
+@prefix ex: <http://example.org/notes#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ex:Etudiant a rdfs:Class ;
+    rdfs:label "Étudiant" .
+
+ex:Cours a rdfs:Class ;
+    rdfs:label "Cours" .
+
+ex:Evaluation a rdfs:Class ;
+    rdfs:label "Évaluation" .
+
+ex:aNote a rdf:Property ;
+    rdfs:label "a pour note" ;
+    rdfs:domain ex:Evaluation ;
+    rdfs:range  rdfs:Literal .
+
+ex:concernCours a rdf:Property ;
+    rdfs:label "concerne le cours" ;
+    rdfs:domain ex:Evaluation ;
+    rdfs:range  ex:Cours .
+
+ex:concernEtudiant a rdf:Property ;
+    rdfs:label "concerne l’étudiant" ;
+    rdfs:domain ex:Evaluation ;
+    rdfs:range  ex:Etudiant .
