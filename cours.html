@@ -2,128 +2,102 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Liste des cours – Examen THYP</title>
+    <title>Liste des cours</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <style>
-        /* Mise en page simple, lisible et responsive */
-
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             margin: 0;
-            background: #f5f5f7;
-            color: #222;
+            background: #f5f7fb;
         }
-
         header {
-            background: #111827;
+            background: #0f172a;
             color: #fff;
-            padding: 1rem 1.5rem;
+            padding: 16px 24px;
         }
-
         header h1 {
             margin: 0;
-            font-size: 1.4rem;
+            font-size: 20px;
         }
-
         header p {
-            margin: 0.4rem 0 0;
-            font-size: 0.9rem;
-            opacity: 0.8;
+            margin: 4px 0 0;
+            font-size: 12px;
+            opacity: .8;
         }
-
         main {
-            max-width: 960px;
-            margin: 1.5rem auto;
-            padding: 0 1rem 2rem;
+            max-width: 900px;
+            margin: 24px auto;
+            padding: 0 16px 32px;
         }
-
         .toolbar {
             display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            align-items: center;
-            margin-bottom: 1rem;
+            gap: 8px;
+            margin-bottom: 16px;
         }
-
-        .toolbar input[type="text"] {
+        .toolbar input {
             flex: 1;
-            min-width: 180px;
-            padding: 0.5rem 0.75rem;
+            padding: 10px 12px;
             border-radius: 999px;
-            border: 1px solid #d1d5db;
-            font-size: 0.95rem;
+            border: 1px solid #cbd5f5;
+            font-size: 14px;
         }
-
         .toolbar button {
-            padding: 0.55rem 0.9rem;
+            padding: 10px 16px;
             border-radius: 999px;
             border: none;
             background: #2563eb;
             color: #fff;
-            font-size: 0.9rem;
+            font-size: 14px;
             cursor: pointer;
         }
-
         .toolbar button:hover {
             background: #1d4ed8;
         }
-
-        .card {
-            background: #fff;
-            border-radius: 0.75rem;
-            padding: 0.9rem 1rem;
-            margin-bottom: 0.8rem;
-            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+        #status {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 8px;
         }
-
-        .card-header {
+        ul#cours-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        ul#cours-list li {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            box-shadow: 0 1px 3px rgba(15,23,42,.08);
             display: flex;
             justify-content: space-between;
-            gap: 0.75rem;
-            align-items: baseline;
+            align-items: center;
+            gap: 16px;
         }
-
-        .card-title {
+        .cours-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .cours-id {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .cours-title {
             font-weight: 600;
         }
-
-        .card-id {
-            font-size: 0.8rem;
+        .omk-link a {
+            font-size: 12px;
+            color: #2563eb;
+            text-decoration: none;
+        }
+        .omk-link a:hover {
+            text-decoration: underline;
+        }
+        .empty {
+            font-size: 14px;
             color: #6b7280;
-        }
-
-        .card-body {
-            margin-top: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .students {
-            margin-top: 0.35rem;
-            color: #374151;
-        }
-
-        .tag {
-            display: inline-block;
-            padding: 0.15rem 0.5rem;
-            border-radius: 999px;
-            background: #eff6ff;
-            color: #1d4ed8;
-            font-size: 0.75rem;
-            margin-right: 0.25rem;
-            margin-bottom: 0.25rem;
-        }
-
-        #status {
-            margin: 0.5rem 0 0.8rem;
-            font-size: 0.85rem;
-            color: #6b7280;
-        }
-
-        @media (max-width: 600px) {
-            header h1 {
-                font-size: 1.15rem;
-            }
+            margin-top: 8px;
         }
     </style>
 </head>
@@ -134,181 +108,123 @@
 </header>
 
 <main>
-    <section class="toolbar">
-        <input
-            type="text"
-            id="filter-input"
-            placeholder="Filtrer les cours par titre ou identifiant…"
-            oninput="filterCours()"
-        >
-        <button type="button" onclick="rechargerCours()">Recharger</button>
-    </section>
-
-    <p id="status">Chargement des cours…</p>
-
-    <section id="cours-container">
-        <!-- Les cartes de cours seront insérées ici par showCours() -->
-    </section>
+    <div class="toolbar">
+        <input id="search" type="text" placeholder="Filtrer les cours par mot-clé…">
+        <button id="btn-reload">Recharger</button>
+    </div>
+    <div id="status"></div>
+    <ul id="cours-list"></ul>
+    <div id="empty-msg" class="empty"></div>
 </main>
 
 <script>
-    /**
-     * Adresse de base de l'API Omeka S en local.
-     * À adapter si besoin (par ex. http://localhost/omeka-s2/api).
-     */
+    // ⚠️ URL de ton Omeka local
     const API_BASE = "http://localhost/omeka-s2/api";
 
-    // Stockage global de la liste brute pour le filtrage
-    let ALL_COURS = [];
+    // ID du modèle de ressource "cours" (vu dans ton JSON : resource_templates/4)
+    const TEMPLATE_COURS_ID = 4;
 
-    /**
-     * getCours()
-     * Récupère la liste des cours via l’API Omeka S.
-     * On filtre sur la resource template "cours".
-     */
-    async function getCours() {
-        const url = API_BASE + "/items?resource_template_label=cours";
-
+    // 1) Récupérer les items depuis l'API Omeka
+    async function getCours(searchTerm = "") {
+        // On récupère tout puis on filtre en JS (plus simple pour l'examen)
+        const url = API_BASE + "/items?per_page=1000";
         const response = await fetch(url);
+
         if (!response.ok) {
-            throw new Error("Erreur API " + response.status);
+            throw new Error("Erreur API : " + response.status);
         }
-        const data = await response.json();
-        return data;
+
+        const items = await response.json();
+
+        // Garder uniquement les items dont le resource_template est "cours"
+        let cours = items.filter(it =>
+            it["o:resource_template"]
+            && it["o:resource_template"]["o:id"] === TEMPLATE_COURS_ID
+        );
+
+        // Petit filtre texte côté client (sur titre / identifiant)
+        if (searchTerm.trim() !== "") {
+            const q = searchTerm.toLowerCase();
+            cours = cours.filter(it => {
+                const titre = getFirstValue(it["dcterms:title"]);
+                const ident = getFirstValue(it["dcterms:identifier"]);
+                return (titre && titre.toLowerCase().includes(q)) ||
+                       (ident && ident.toLowerCase().includes(q));
+            });
+        }
+
+        return cours;
     }
 
-    /**
-     * Helpers pour extraire les valeurs des propriétés Omeka
-     * selon leur nom court (ex : 'dcterms:title', 'ex:concernEtudiant').
-     * Ces helpers sont génériques et peuvent être adaptés.
-     */
-    function getLiteral(item, propName) {
-        const values = item[propName];
-        if (!values || !values.length) return "";
-        // valeur littérale classique
-        return values[0]["@value"] || values[0]["display_title"] || "";
-    }
+    // 2) Afficher la liste des cours
+    function showCours(cours) {
+        const list = document.getElementById("cours-list");
+        const emptyMsg = document.getElementById("empty-msg");
+        list.innerHTML = "";
+        emptyMsg.textContent = "";
 
-    function getResourceTitles(item, propName) {
-        const values = item[propName] || [];
-        return values.map(v => v["display_title"] || v["@value"] || "").filter(Boolean);
-    }
-
-    /**
-     * showCours()
-     * Affiche la liste des cours dans le DOM.
-     * Affiche : identifiant, titre, liste des étudiants inscrits.
-     */
-    function showCours(coursList) {
-        const container = document.getElementById("cours-container");
-        container.innerHTML = "";
-
-        if (!coursList.length) {
-            container.innerHTML = "<p>Aucun cours trouvé.</p>";
+        if (!cours || cours.length === 0) {
+            emptyMsg.textContent = "Aucun cours trouvé.";
             return;
         }
 
-        coursList.forEach(item => {
-            // Selon la configuration d’Omeka, les propriétés peuvent être :
-            //  - dcterms:title
-            //  - dcterms:identifier
-            //  - ex:concernEtudiant
-            const id = item["o:id"];
-            const titre =
-                getLiteral(item, "dcterms:title") ||
-                getLiteral(item, "title") ||
-                "(Sans titre)";
+        cours.forEach(item => {
+            const li = document.createElement("li");
 
-            const identifiant =
-                getLiteral(item, "dcterms:identifier") ||
-                getLiteral(item, "identifier") ||
-                id;
+            const idOmeka = item["o:id"];
+            const ident = getFirstValue(item["dcterms:identifier"]) || "(sans identifiant)";
+            const titre = getFirstValue(item["dcterms:title"]) || "(sans titre)";
 
-            const etudiants =
-                getResourceTitles(item, "ex:concernEtudiant") ||
-                getResourceTitles(item, "concernEtudiant");
-
-            const card = document.createElement("article");
-            card.className = "card";
-
-            card.innerHTML = `
-                <div class="card-header">
-                    <div class="card-title">${titre}</div>
-                    <div class="card-id">ID : ${id} – Code : ${identifiant}</div>
-                </div>
-                <div class="card-body">
-                    <div><strong>Étudiants inscrits :</strong></div>
-                    <div class="students">
-                        ${
-                            etudiants.length
-                                ? etudiants.map(nom => `<span class="tag">${nom}</span>`).join("")
-                                : "<span style='color:#9ca3af'>Aucun étudiant lié</span>"
-                        }
-                    </div>
-                </div>
+            const infoDiv = document.createElement("div");
+            infoDiv.className = "cours-info";
+            infoDiv.innerHTML = `
+                <div class="cours-title">${titre}</div>
+                <div class="cours-id">Identifiant : ${ident}</div>
             `;
 
-            container.appendChild(card);
+            const linkDiv = document.createElement("div");
+            linkDiv.className = "omk-link";
+            linkDiv.innerHTML = `
+                <a href="http://localhost/omeka-s2/admin/item/${idOmeka}" target="_blank">
+                    Voir dans Omeka
+                </a>
+            `;
+
+            li.appendChild(infoDiv);
+            li.appendChild(linkDiv);
+            list.appendChild(li);
         });
     }
 
-    /**
-     * filterCours()
-     * Filtre la liste des cours par titre ou identifiant.
-     */
-    function filterCours() {
-        const input = document.getElementById("filter-input");
-        const term = input.value.trim().toLowerCase();
-
-        if (!term) {
-            showCours(ALL_COURS);
-            document.getElementById("status").textContent =
-                "Nombre de cours : " + ALL_COURS.length;
-            return;
-        }
-
-        const filtres = ALL_COURS.filter(item => {
-            const titre =
-                getLiteral(item, "dcterms:title") ||
-                getLiteral(item, "title") ||
-                "";
-            const identifiant =
-                getLiteral(item, "dcterms:identifier") ||
-                getLiteral(item, "identifier") ||
-                "";
-            return (
-                titre.toLowerCase().includes(term) ||
-                identifiant.toLowerCase().includes(term)
-            );
-        });
-
-        showCours(filtres);
-        document.getElementById("status").textContent =
-            "Filtre : \"" + term + "\" – " + filtres.length + " cours trouvés";
+    // 3) Fonction utilitaire pour lire la première valeur d'une propriété Omeka
+    function getFirstValue(propArray) {
+        if (!propArray || !Array.isArray(propArray) || propArray.length === 0) return null;
+        return propArray[0]["@value"] || null;
     }
 
-    /**
-     * rechargerCours()
-     * Bouton manuel pour relancer le chargement depuis l’API.
-     */
+    // 4) Fonction principale appelée au clic sur "Recharger"
     async function rechargerCours() {
-        document.getElementById("status").textContent =
-            "Rechargement des cours…";
+        const status = document.getElementById("status");
+        status.textContent = "Chargement des cours depuis http://localhost/omeka-s2…";
+
         try {
-            const data = await getCours();
-            ALL_COURS = data;
-            showCours(ALL_COURS);
-            document.getElementById("status").textContent =
-                "Nombre de cours : " + ALL_COURS.length;
+            const searchTerm = document.getElementById("search").value;
+            const cours = await getCours(searchTerm);
+            showCours(cours);
+            status.textContent = "";
         } catch (e) {
             console.error(e);
-            document.getElementById("status").textContent =
-                "Erreur lors du chargement des cours (voir la console).";
+            status.textContent = "Erreur lors du chargement des cours (voir la console).";
         }
     }
 
-    // Chargement initial au démarrage de la page
-    document.addEventListener("DOMContentLoaded", rechargerCours);
+    // 5) Initialisation
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("btn-reload").addEventListener("click", rechargerCours);
+
+        // Rechargement automatique au chargement de la page
+        rechargerCours();
+    });
 </script>
 </body>
 </html>
