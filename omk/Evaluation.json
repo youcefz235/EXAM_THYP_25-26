@@ -1,0 +1,47 @@
+{
+    "o:label": "Evaluation",
+    "o:resource_template_property": [
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "http:\/\/example.org\/notes#",
+            "vocabulary_label": "Vocabulaire Evaluations M2",
+            "local_name": "aNote",
+            "label": "a pour note"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "http:\/\/example.org\/notes#",
+            "vocabulary_label": "Vocabulaire Evaluations M2",
+            "local_name": "concernEtudiant",
+            "label": "concerne l\u2019\u00e9tudiant"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "http:\/\/example.org\/notes#",
+            "vocabulary_label": "Vocabulaire Evaluations M2",
+            "local_name": "concernCours",
+            "label": "concerne le cours"
+        }
+    ],
+    "o:resource_class": {
+        "vocabulary_namespace_uri": "http:\/\/example.org\/notes#",
+        "vocabulary_label": "Vocabulaire Evaluations M2",
+        "local_name": "Evaluation",
+        "label": "\u00c9valuation"
+    }
+}
