@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Évaluations – Examen THYP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            margin: 0;
+            background: #f5f5f7;
+            color: #111827;
+        }
+
+        header {
+            background: #111827;
+            color: #fff;
+            padding: 1rem 1.5rem;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.4rem;
+        }
+
+        header p {
+            margin: 0.4rem 0 0;
+            font-size: 0.9rem;
+            opacity: 0.85;
+        }
+
+        main {
+            max-width: 960px;
+            margin: 1.5rem auto 2rem;
+            padding: 0 1rem;
+        }
+
+        .section-title {
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 0.75rem;
+            padding: 0.9rem 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.75rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: #4b5563;
+        }
+
+        input[type="number"],
+        input[type="text"] {
+            padding: 0.45rem 0.6rem;
+            border-radius: 0.55rem;
+            border: 1px solid #d1d5db;
+            font-size: 0.9rem;
+        }
+
+        .actions {
+            margin-top: 0.8rem;
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 0.55rem 0.9rem;
+            border-radius: 999px;
+            border: none;
+            background: #2563eb;
+            color: #fff;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        button.secondary {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        button.secondary:hover {
+            background: #d1d5db;
+        }
+
+        .status {
+            margin-top: 0.4rem;
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .toolbar {
+            margin-bottom: 0.7rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            align-items: center;
+        }
+
+        .toolbar input[type="text"] {
+            flex: 1;
+            min-width: 180px;
+            padding: 0.45rem 0.75rem;
+            border-radius: 999px;
+            border: 1px solid #d1d5db;
+            font-size: 0.9rem;
+        }
+
+        .eval-card {
+            margin-bottom: 0.7rem;
+        }
+
+        .eval-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 0.75rem;
+        }
+
+        .eval-title {
+            font-weight: 600;
+        }
+
+        .eval-id {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .eval-body {
+            margin-top: 0.35rem;
+            font-size: 0.9rem;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.1rem 0.45rem;
+            border-radius: 999px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 0.75rem;
+            margin-right: 0.25rem;
+        }
+
+        @media (max-width: 720px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Évaluations des étudiants</h1>
+    <p>Examen THYP du 9 décembre 2025 – page <code>evals.html</code></p>
+</header>
+
+<main>
+    <!-- Création d'une évaluation -->
+    <section class="card">
+        <div class="section-title">Créer une nouvelle évaluation</div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="note-input">Note (0–20)</label>
+                <input type="number" id="note-input" min="0" max="20" step="0.5" placeholder="Ex : 14">
+            </div>
+            <div class="form-group">
+                <label for="etudiant-id-input">ID de l'étudiant</label>
+                <input type="number" id="etudiant-id-input" placeholder="Ex : 5">
+            </div>
+            <div class="form-group">
+                <label for="cours-id-input">ID du cours</label>
+                <input type="number" id="cours-id-input" placeholder="Ex : 3">
+            </div>
+        </div>
+
+        <div class="actions">
+            <button type="button" onclick="handleSetEval()">Enregistrer l'évaluation</button>
+            <button type="button" class="secondary" onclick="resetForm()">Réinitialiser</button>
+        </div>
+
+        <p id="form-status" class="status"></p>
+    </section>
+
+    <!-- Liste des évaluations -->
+    <section class="card">
+        <div class="section-title">Liste des évaluations</div>
+
+        <div class="toolbar">
+            <input
+                type="text"
+                id="filter-input"
+                placeholder="Filtrer par étudiant, cours ou note…"
+                oninput="filterEvals()"
+            >
+            <button type="button" class="secondary" onclick="rechargerEvals()">Recharger</button>
+        </div>
+
+        <p id="list-status" class="status">Chargement des évaluations…</p>
+
+        <div id="evals-container">
+            <!-- rempli par showEval() -->
+        </div>
+    </section>
+</main>
+
+<script>
+    /**
+     * Adresse de base de l'API Omeka S (en local).
+     * À adapter si nécessaire.
+     */
+    const API_BASE = "http://localhost/omeka-s2/api";
+
+    // Stockage global pour le filtrage
+    let ALL_EVALS = [];
+
+    /**
+     * setEval(note, etudiantId, coursId)
+     * Enregistre une nouvelle évaluation dans Omeka S via l'API.
+     * On utilise le vocabulaire personnalisé :
+     *   ex:aNote, ex:concernEtudiant, ex:concernCours
+     */
+    async function setEval(note, etudiantId, coursId) {
+        const body = {
+            "o:resource_template": { "o:label": "Evaluation" },
+            "o:resource_class": { "o:term": "ex:Evaluation" },
+
+            "ex:aNote": [
+                { "@value": String(note), "type": "literal" }
+            ],
+
+            "ex:concernEtudiant": [
+                { "value_resource_id": Number(etudiantId) }
+            ],
+
+            "ex:concernCours": [
+                { "value_resource_id": Number(coursId) }
+            ]
+        };
+
+        const response = await fetch(API_BASE + "/items", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (!response.ok) {
+            throw new Error("Erreur API " + response.status);
+        }
+
+        return await response.json();
+    }
+
+    /**
+     * getEvals()
+     * Récupère toutes les évaluations (items du modèle "Evaluation").
+     */
+    async function getEvals() {
+        const url = API_BASE + "/items?resource_template_label=Evaluation";
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error("Erreur API " + response.status);
+        }
+
+        return await response.json();
+    }
+
+    // Helpers de lecture
+    function getLiteral(item, propName) {
+        const values = item[propName];
+        if (!values || !values.length) return "";
+        return values[0]["@value"] || values[0]["display_title"] || "";
+    }
+
+    function getResourceTitle(item, propName) {
+        const values = item[propName];
+        if (!values || !values.length) return "";
+        const v = values[0];
+        return v["display_title"] || v["@value"] || "";
+    }
+
+    /**
+     * showEval(list)
+     * Affiche les évaluations dans la page.
+     * Pour chaque évaluation :
+     *  - identifiant de l'évaluation
+     *  - note
+     *  - étudiant
+     *  - cours
+     */
+    function showEval(evals) {
+        const container = document.getElementById("evals-container");
+        container.innerHTML = "";
+
+        if (!evals.length) {
+            container.innerHTML = "<p>Aucune évaluation trouvée.</p>";
+            return;
+        }
+
+        evals.forEach(item => {
+            const idEval = item["o:id"];
+
+            const note =
+                getLiteral(item, "ex:aNote") ||
+                getLiteral(item, "aNote") ||
+                "(?)";
+
+            const etudiant =
+                getResourceTitle(item, "ex:concernEtudiant") ||
+                getResourceTitle(item, "concernEtudiant") ||
+                "Étudiant inconnu";
+
+            const cours =
+                getResourceTitle(item, "ex:concernCours") ||
+                getResourceTitle(item, "concernCours") ||
+                "Cours inconnu";
+
+            const card = document.createElement("article");
+            card.className = "eval-card";
+
+            card.innerHTML = `
+                <div class="eval-header">
+                    <div class="eval-title">Évaluation : ${note}/20</div>
+                    <div class="eval-id">ID évaluation : ${idEval}</div>
+                </div>
+                <div class="eval-body">
+                    <div>
+                        <strong>Étudiant :</strong>
+                        <span class="tag">${etudiant}</span>
+                    </div>
+                    <div style="margin-top: 0.15rem;">
+                        <strong>Cours :</strong>
+                        <span class="tag">${cours}</span>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(card);
+        });
+    }
+
+    /**
+     * Filtrage côté client
+     */
+    function filterEvals() {
+        const term = document.getElementById("filter-input")
+            .value.trim()
+            .toLowerCase();
+
+        if (!term) {
+            showEval(ALL_EVALS);
+            document.getElementById("list-status").textContent =
+                "Nombre d'évaluations : " + ALL_EVALS.length;
+            return;
+        }
+
+        const filtered = ALL_EVALS.filter(item => {
+            const note =
+                getLiteral(item, "ex:aNote") ||
+                getLiteral(item, "aNote") ||
+                "";
+
+            const etudiant =
+                getResourceTitle(item, "ex:concernEtudiant") ||
+                getResourceTitle(item, "concernEtudiant") ||
+                "";
+
+            const cours =
+                getResourceTitle(item, "ex:concernCours") ||
+                getResourceTitle(item, "concernCours") ||
+                "";
+
+            return (
+                String(note).toLowerCase().includes(term) ||
+                etudiant.toLowerCase().includes(term) ||
+                cours.toLowerCase().includes(term)
+            );
+        });
+
+        showEval(filtered);
+        document.getElementById("list-status").textContent =
+            `Filtre : "${term}" – ${filtered.length} évaluation(s) trouvée(s)`;
+    }
+
+    /**
+     * Bouton "Recharger"
+     */
+    async function rechargerEvals() {
+        document.getElementById("list-status").textContent =
+            "Rechargement des évaluations…";
+
+        try {
+            const data = await getEvals();
+            ALL_EVALS = data;
+            showEval(ALL_EVALS);
+            document.getElementById("list-status").textContent =
+                "Nombre d'évaluations : " + ALL_EVALS.length;
+        } catch (e) {
+            console.error(e);
+            document.getElementById("list-status").textContent =
+                "Erreur lors du chargement des évaluations (voir la console).";
+        }
+    }
+
+    /**
+     * Gestion du formulaire de création
+     */
+    async function handleSetEval() {
+        const note = document.getElementById("note-input").value;
+        const etuId = document.getElementById("etudiant-id-input").value;
+        const coursId = document.getElementById("cours-id-input").value;
+        const status = document.getElementById("form-status");
+
+        if (!note || !etuId || !coursId) {
+            status.textContent = "Veuillez remplir tous les champs.";
+            return;
+        }
+
+        status.textContent = "Enregistrement de l'évaluation…";
+
+        try {
+            await setEval(note, etuId, coursId);
+            status.textContent = "Évaluation enregistrée avec succès.";
+            // On recharge la liste
+            await rechargerEvals();
+        } catch (e) {
+            console.error(e);
+            status.textContent =
+                "Erreur lors de l'enregistrement (voir la console).";
+        }
+    }
+
+    function resetForm() {
+        document.getElementById("note-input").value = "";
+        document.getElementById("etudiant-id-input").value = "";
+        document.getElementById("cours-id-input").value = "";
+        document.getElementById("form-status").textContent = "";
+    }
+
+    // Chargement initial
+    document.addEventListener("DOMContentLoaded", rechargerEvals);
+</script>
+</body>
+</html>
